@@ -23,16 +23,30 @@ class goSquare(Canvas):
         self.create_line(0, 15, 30, 15)
         self.create_line(15,0,15,30)
         self.color=None
+        self.bind("<Button-1>", master.get_click)
     def make_piece(self, color):
         self.color=color
-        self.create_circle(15,15,13, fill=color)
+        self.piece=self.create_circle(15,15,13, fill=color)
     def clear(self):
-        self.delete("all")
+        self.delete(self.piece)
+
+class goGrid(Frame):
+    def __init__(self, master):
+        Frame.__init__(self, master)
+        squares={}
+        for i in range(10):
+            for x in range(10):
+                squares[(i,x)]=goSquare((i,x), self)
+                squares[(i,x)].grid(row=i, column=x, sticky=N+S+E+W)
+                squares[(i,x)].make_piece("white")
+        for i in range(10):
+            Grid.rowconfigure(self, i, weight=1)
+            Grid.columnconfigure(self, i, weight=1)
+    def get_click(self, event):
+        event.widget.clear()
+
 bob=Tk()
-squares={}
-for i in range(10):
-    for x in range(10):
-        squares[(i,x)]=goSquare((i,x), bob)
-        squares[(i,x)].grid(row=i, column=x)
-        squares[(i,x)].make_piece("white")
+goGrid(bob).grid(sticky=N+S+E+W, row=0, column=0)
+Grid.rowconfigure(bob, 0, weight=1)
+Grid.columnconfigure(bob, 0, weight=1)
 bob.mainloop()
