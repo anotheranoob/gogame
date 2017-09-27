@@ -32,7 +32,8 @@ def set_aspect(content_frame, pad_frame, aspect_ratio):
         if desired_height > event.height:
             desired_height = event.height
             desired_width = int(event.height * aspect_ratio)
-
+        desired_height=desired_height//10*10
+        desired_width=desired_width//10*10
         # place the window, giving it an explicit size
         content_frame.place(in_=pad_frame, x=0, y=0, 
             width=desired_width, height=desired_height)
@@ -71,12 +72,13 @@ class goGrid(Frame):
             for x in range(10):
                 squares[(i,x)]=goSquare((i,x), self)
                 squares[(i,x)].grid(row=i, column=x, sticky=N+S+E+W)
-                squares[(i,x)].make_piece("white")
+                #squares[(i,x)].make_piece("white")
         for i in range(10):
             Grid.rowconfigure(self, i, weight=1)
             Grid.columnconfigure(self, i, weight=1)
     def get_click(self, event):
-        event.widget.clear()
+        #event.widget.clear()
+        event.widget.make_piece("white")
 
 class goFrame(Frame):
     def __init__(self):
