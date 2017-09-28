@@ -76,9 +76,9 @@ class goGrid(Frame):
         for i in range(10):
             Grid.rowconfigure(self, i, weight=1)
             Grid.columnconfigure(self, i, weight=1)
+        self.master=master
     def get_click(self, event):
-        #event.widget.clear()
-        event.widget.make_piece("white")
+        self.master.get_click(event)
 
 class goFrame(Frame):
     def __init__(self):
@@ -91,5 +91,8 @@ class goFrame(Frame):
         set_aspect(self.goGrid, self, 1.0)
         self.master.geometry('300x300')
         self.master.mainloop()
+    def get_click(self, event):
+        event.widget.make_piece("white")
+        
 
 goFrame()
