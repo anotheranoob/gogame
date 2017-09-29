@@ -78,6 +78,7 @@ class goGrid(Frame):
             Grid.columnconfigure(self, i, weight=1)
         self.master=master
     def get_click(self, event):
+        #event.widget.clear()
         self.master.get_click(event)
 
 class goFrame(Frame):
@@ -90,9 +91,35 @@ class goFrame(Frame):
         self.goGrid=goGrid(self)
         set_aspect(self.goGrid, self, 1.0)
         self.master.geometry('300x300')
+        self.turn=0 #white is 0 black is 1
+        self.strSquares={}
+        for i in range(10):
+            for x in range(10):
+                self.strSquares[(i,x)]=""
+        self.event=None
         self.master.mainloop()
     def get_click(self, event):
-        event.widget.make_piece("white")
-        
+        self.event=event
+        if self.validate_move(event.widget.position):
+            self.remove_pieces()
 
+    def validate_move(self, position):
+        for i in self.find_liberties(position):
+            if self.strSquares[i]==self.turn or self.strSquares[i]=="":
+                self.make_move(position)
+        
+    def find_liberties(self, position):
+        liberties=[]
+        r,c=position
+        for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
+            try:
+                liberties.append((r+i,c+x))
+            except KeyError:
+                pass
+        return liberties
+    def make_move(self, position):
+        self.strSquares[position]==self.turn
+        self.event.widget.make_piece(["white", "black"][self.turn])
+        self.turn=1-self.turn
+        
 goFrame()
