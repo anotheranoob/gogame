@@ -100,6 +100,8 @@ class goFrame(Frame):
         self.master.mainloop()
     def get_click(self, event):
         self.event=event
+        if self.strSquares[self.event.widget.position]!="":
+            return
         if self.validate_move(event.widget.position):
             self.remove_pieces()
 
@@ -107,18 +109,20 @@ class goFrame(Frame):
         for i in self.find_liberties(position):
             if self.strSquares[i]==self.turn or self.strSquares[i]=="":
                 self.make_move(position)
+                break
         
     def find_liberties(self, position):
         liberties=[]
         r,c=position
         for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
             try:
+                self.strSquares[(r+i,c+x)]
                 liberties.append((r+i,c+x))
             except KeyError:
                 pass
         return liberties
     def make_move(self, position):
-        self.strSquares[position]==self.turn
+        self.strSquares[position]=self.turn
         self.event.widget.make_piece(["white", "black"][self.turn])
         self.turn=1-self.turn
         
