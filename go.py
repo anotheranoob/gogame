@@ -4,11 +4,8 @@ This program plays the game go
 It has a goSquare class, a goGrid class, and a goFrame class.
 The goSquare is an individual square from the goGame which has an attribute
 for its position and color. It has methods for drawing a circle and removing one.
-
 The goGrid contains all of the goSquares and also handles making moves and the UI
-
 The goFrame handles all of the logic and end of game stuff.
-
 '''
 from tkinter import *
 def _create_circle(self, x, y, r, **kwargs):
@@ -97,9 +94,14 @@ class goFrame(Frame):
             for x in range(10):
                 self.strSquares[(i,x)]=""
         self.event=None
+        self.errorVar=StringVar()
+        self.errorMessage = Label(self.master, textvariable=self.errorVar)
+        self.errorMessage.grid()
+        self.liberties=[]
         self.master.mainloop()
     def get_click(self, event):
         self.event=event
+        print(event.widget.position)
         if self.strSquares[self.event.widget.position]!="":
             return
         if self.validate_move(event.widget.position):
@@ -107,20 +109,33 @@ class goFrame(Frame):
 
     def validate_move(self, position):
         for i in self.find_liberties(position):
-            if self.strSquares[i]==self.turn or self.strSquares[i]=="":
+            if self.strSquares[i]=="":
                 self.make_move(position)
-                break
+                self.errorVar.set("")
+                self.liberties=[]
+                return
+            self.errorVar.set("Can't make move: move is suicidal!")
         
     def find_liberties(self, position):
-        liberties=[]
+        self.original_liberties=self.liberties
         r,c=position
         for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
             try:
                 self.strSquares[(r+i,c+x)]
-                liberties.append((r+i,c+x))
+                if not((r+i,c+x) in self.liberties):
+                    self.liberties.append((r+i,c+x))
             except KeyError:
                 pass
-        return liberties
+
+        for i in self.liberties:
+            a=self.strSquares[i]
+            if a==self.turn and not(a in self.original_liberties): 
+                print(self.liberties)
+                if self.original_liberties==self.liberties:
+                    return self.liberties
+                else:
+                    self.liberties+=self.find_liberties(i)
+        return self.liberties
     def make_move(self, position):
         self.strSquares[position]=self.turn
         self.event.widget.make_piece(["white", "black"][self.turn])
