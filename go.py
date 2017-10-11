@@ -140,5 +140,7 @@ class goFrame(Frame):
         self.strSquares[position]=self.turn
         self.event.widget.make_piece(["white", "black"][self.turn])
         self.turn=1-self.turn
+    def remove_pieces(self):
+        pass
         
 goFrame()
