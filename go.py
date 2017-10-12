@@ -64,11 +64,11 @@ class goSquare(Canvas):
 class goGrid(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
-        squares={}
+        self.squares={}
         for i in range(10):
             for x in range(10):
-                squares[(i,x)]=goSquare((i,x), self)
-                squares[(i,x)].grid(row=i, column=x, sticky=N+S+E+W)
+                self.squares[(i,x)]=goSquare((i,x), self)
+                self.squares[(i,x)].grid(row=i, column=x, sticky=N+S+E+W)
                 #squares[(i,x)].make_piece("white")
         for i in range(10):
             Grid.rowconfigure(self, i, weight=1)
@@ -98,12 +98,12 @@ class goFrame(Frame):
         self.errorMessage = Label(self.master, textvariable=self.errorVar)
         self.errorMessage.grid()
         self.liberties=[]
+        self.chain=[]
         self.master.mainloop()
     def get_click(self, event):
         self.event=event
-        print(event.widget.position)
         if self.strSquares[self.event.widget.position]!="":
-            return
+            return None
         if self.validate_move(event.widget.position):
             self.remove_pieces()
 
@@ -126,11 +126,9 @@ class goFrame(Frame):
                     self.liberties.append((r+i,c+x))
             except KeyError:
                 pass
-
         for i in self.liberties:
             a=self.strSquares[i]
-            if a==self.turn and not(a in self.original_liberties): 
-                print(self.liberties)
+            if a==self.turn and not(a in self.original_liberties):
                 if self.original_liberties==self.liberties:
                     return self.liberties
                 else:
@@ -140,7 +138,33 @@ class goFrame(Frame):
         self.strSquares[position]=self.turn
         self.event.widget.make_piece(["white", "black"][self.turn])
         self.turn=1-self.turn
+    def find_chains(self,pos):
+        (r,c)=position
+        original_squares=self.chain
+        for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
+            try:
+                self.strSquares[(r+i,c+x)]
+                if not((r+i,c+x) in self.chain) and self.squares[(r+i,c+x)]==self.squares[(r,c)]:
+                    self.chain.append((r+i,c+x))
+            except KeyError:
+                pass
+        if original_squares==self.chain:
+            return self.chain
+        else:
+            for i in self.chain:
+                if not i in original_squares:
+                    find_chains(i)
+
     def remove_pieces(self):
-        pass
-        
+        for i in self.squares:
+            if i!="":
+                for x in self.find_liberties(i):
+                    if self.strSquares[i]=="":
+                        break
+                    else:
+                        for z in self.find_chains(x):
+                            self.squares[z]=""
+                            self.goGrid.squares.clear()
+
+
 goFrame()
