@@ -108,16 +108,17 @@ class goFrame(Frame):
             self.remove_pieces()
 
     def validate_move(self, position):
+        print(self.find_liberties(position))
         for i in self.find_liberties(position):
             if self.strSquares[i]=="":
                 self.make_move(position)
                 self.errorVar.set("")
                 self.liberties=[]
                 return
-            self.errorVar.set("Can't make move: move is suicidal!")
+        self.errorVar.set("Can't make move: move is suicidal!")
         
     def find_liberties(self, position):
-        self.original_liberties=self.liberties
+        self.original_liberties=list(self.liberties)
         r,c=position
         for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
             try:
@@ -126,13 +127,13 @@ class goFrame(Frame):
                     self.liberties.append((r+i,c+x))
             except KeyError:
                 pass
+        if self.original_liberties==self.liberties:
+            print(self.original_liberties, self.liberties)
+            return self.liberties
         for i in self.liberties:
             a=self.strSquares[i]
-            if a==self.turn and not(a in self.original_liberties):
-                if self.original_liberties==self.liberties:
-                    return self.liberties
-                else:
-                    self.liberties+=self.find_liberties(i)
+            if a==self.strSquares[position] and not(a in self.original_liberties):
+                self.find_liberties(i)
         return self.liberties
     def make_move(self, position):
         self.strSquares[position]=self.turn
