@@ -108,16 +108,16 @@ class goFrame(Frame):
             self.remove_pieces()
 
     def validate_move(self, position):
-        print(self.find_liberties(position))
-        for i in self.find_liberties(position):
+        print(self.find_liberties(position, self.turn))
+        for i in self.find_liberties(position, self.turn):
             if self.strSquares[i]=="":
                 self.make_move(position)
                 self.errorVar.set("")
                 self.liberties=[]
-                return
+                return True
         self.errorVar.set("Can't make move: move is suicidal!")
         
-    def find_liberties(self, position):
+    def find_liberties(self, position, color):
         self.original_liberties=list(self.liberties)
         r,c=position
         for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
@@ -132,15 +132,15 @@ class goFrame(Frame):
             return self.liberties
         for i in self.liberties:
             a=self.strSquares[i]
-            if a==self.strSquares[position] and not(a in self.original_liberties):
-                self.find_liberties(i)
+            if a==color and not(i in self.original_liberties):
+                self.find_liberties(i, color)
         return self.liberties
     def make_move(self, position):
         self.strSquares[position]=self.turn
         self.event.widget.make_piece(["white", "black"][self.turn])
         self.turn=1-self.turn
     def find_chains(self,pos):
-        (r,c)=position
+        (r,c)=pos
         original_squares=self.chain
         for (i,x) in [(0,1), (1,0), (0,-1), (-1,0)]:
             try:
@@ -157,9 +157,9 @@ class goFrame(Frame):
                     find_chains(i)
 
     def remove_pieces(self):
-        for i in self.squares:
+        for i in self.strSquares:
             if i!="":
-                for x in self.find_liberties(i):
+                for x in self.find_liberties(i, self.strSquares[i]):
                     if self.strSquares[i]=="":
                         break
                     else:
